@@ -38,6 +38,7 @@ def get_EAPOL(type, payload=""):
     return pack("!BBH", EAPOL_VERSION, type, len(payload))+payload
 
 def get_EAP(code, id, type=0, data=""):
+    # data 是 Identity 数据
     if code in [EAP_SUCCESS, EAP_FAILURE]:
         return pack("!BBH", code, id, 4)
     else:
