@@ -41,7 +41,6 @@ class EAPAuth:
             self.mac_addr, PAE_GROUP_ADDR, ETHERTYPE_PAE)
         self.has_sent_logoff = False
         self.login_info = login_info
-        self.version_info = '' # 删掉原来的版本号
 
     def send_start(self):
         # sent eapol start packet
@@ -64,7 +63,7 @@ class EAPAuth:
                                    get_EAP(EAP_RESPONSE,
                                            packet_id,
                                            EAP_TYPE_ID,
-                                           self.version_info + self.login_info['username'])))
+                                           get_identity_data(self.login_info))))
 
 
     def send_response_md5(self, packet_id, md5data):
