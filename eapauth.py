@@ -10,6 +10,7 @@ __all__ = ["EAPAuth"]
 import socket
 import os, sys, pwd
 from subprocess import call
+from hashlib import md5
 
 from colorama import Fore, Style, init
 # init() # required in Windows
@@ -20,12 +21,12 @@ def display_prompt(color, string):
     prompt += Style.BRIGHT + string + Style.RESET_ALL
     print prompt
 
-def display_packet(packet):
-    # print ethernet_header infomation
-    print 'Ethernet Header Info: '
+def display_packet(packet, header=""):
+    print '%s Packet info: ' % headers
     print '\tFrom: ' + repr(packet[0:6])
     print '\tTo: ' + repr(packet[6:12])
     print '\tType: ' + repr(packet[12:14])
+    print '\tContent: ' + repr(packet[14:])
 
 class EAPAuth:
 
@@ -45,6 +46,7 @@ class EAPAuth:
     def send_start(self):
         # sent eapol start packet
         eap_start_packet = self.ethernet_header + get_EAPOL(EAPOL_START)
+        display_packet(eap_start_packet, "Start")
         self.client.send(eap_start_packet)
 
         display_prompt(Fore.GREEN, 'Sending EAPOL start')
@@ -52,38 +54,52 @@ class EAPAuth:
     def send_logoff(self):
         # sent eapol logoff packet
         eap_logoff_packet = self.ethernet_header + get_EAPOL(EAPOL_LOGOFF)
+        display_packet(eap_logoff_packet, "Logoff")
         self.client.send(eap_logoff_packet)
         self.has_sent_logoff = True
 
         display_prompt(Fore.GREEN, 'Sending EAPOL logoff')
 
     def send_response_id(self, packet_id):
-        self.client.send(self.ethernet_header +
-                         get_EAPOL(EAPOL_EAPPACKET,
-                                   get_EAP(EAP_RESPONSE,
+        eap_response_id_packet = self.ethernet_header + \
+                                 get_EAPOL(EAPOL_EAPPACKET,
+                                    get_EAP(EAP_RESPONSE,
                                            packet_id,
                                            EAP_TYPE_ID,
-                                           get_identity_data(self.login_info))))
+                                           get_identity_data(self.login_info)))
+        display_packet(eap_response_id_packet, "Response_ID")                                   
+        self.client.send(eap_response_id_packet)
 
 
     def send_response_md5(self, packet_id, md5data):
         md5 = self.login_info['password'][0:16]
         if len(md5) < 16:
             md5 = md5 + '\x00' * (16 - len(md5))
+        """
         chap = []
         for i in xrange(0, 16):
             chap.append(chr(ord(md5[i]) ^ ord(md5data[i])))
-        resp = chr(len(chap)) + ''.join(chap) + self.login_info['username']
+        """
+        # 由于没有样本，暂时取https://github.com/coverxit/EasyDrcom/里的结构
+        md5 = md5(md5).digest()
+        md5_length = '\x10' # md5_value_size = 16
+        
+        resp = md5_length + md5
+        # resp = chr(len(chap)) + ''.join(chap) + self.login_info['username']
         eap_packet = self.ethernet_header + \
             get_EAPOL(EAPOL_EAPPACKET, get_EAP(
                 EAP_RESPONSE, packet_id, EAP_TYPE_MD5, resp))
-
+        
+        display_packet(eap_packet, "Response_MD5")  
+        
         try:
             self.client.send(eap_packet)
         except socket.error, msg:
             print "Connection error!"
             exit(-1)
 
+    # 这是何物？
+    """
     def send_response_h3c(self, packet_id):
         resp = chr(len(self.login_info['password'])) + self.login_info['password'] + self.login_info['username']
         eap_packet = self.ethernet_header + get_EAPOL(EAPOL_EAPPACKET, get_EAP(EAP_RESPONSE, packet_id, EAP_TYPE_H3C, resp))
@@ -92,6 +108,7 @@ class EAPAuth:
         except socket.error, msg:
             print "Connection error!"
             exit(-1)
+    """
 
     def display_login_message(self, msg):
         """
@@ -115,6 +132,7 @@ class EAPAuth:
             display_prompt(Fore.YELLOW, 'Got EAP Success')
 
             if self.login_info['dhcp_command']:
+                # 脚本只做测试用， 暂时不获取ip
                 # display_prompt(Fore.YELLOW, 'Obtaining IP Address:')
                 # call([self.login_info['dhcp_command'], self.login_info['ethernet_interface']])
                 display_prompt(Fore.RED, 'Test result: 802.1X Login success')
