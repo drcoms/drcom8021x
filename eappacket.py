@@ -46,3 +46,7 @@ def get_EAP(code, id, type=0, data=""):
 
 def get_ethernet_header(src, dst, type):
     return dst+src+pack("!H",type)
+
+def get_identity_data(login_info):
+      # 产生认证数据，目前没有样本
+      return ''
