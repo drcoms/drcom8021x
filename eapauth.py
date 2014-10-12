@@ -187,6 +187,7 @@ class EAPAuth:
         try:
             self.send_start()
             while True:
+                # 根据一份样本似乎是 15s 认证一次，但是样本没有发送密码
                 eap_packet = self.client.recv(1600)
 
                 # strip the ethernet_header and handle
