@@ -24,7 +24,7 @@ def display_prompt(color, string):
     print prompt
 
 def display_packet(packet, header=""):
-    print '%s Packet info: ' % headers
+    print '%s Packet info: ' % header
     print '\tFrom: ' + repr(packet[0:6])
     print '\tTo: ' + repr(packet[6:12])
     print '\tType: ' + repr(packet[12:14])
