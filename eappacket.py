@@ -34,6 +34,7 @@ EAP_TYPE_MD5 = 4               # md5 Challenge
 
 # DRCOM
 DRCOM_8021X_EAP_MD5_TAIL = '\x44\x61\x17'
+DRCOM_8021X_EAP_IDENTITY_TAIL = '\x44\x61'
 
 ### Packet builders
 def get_EAPOL(type, payload=""):
@@ -51,4 +52,4 @@ def get_ethernet_header(src, dst, type):
 
 def get_identity_data(login_info):
       # 产生认证数据，目前没有样本
-      return ''
+      return login_info['username'] + '\x00' + DRCOM_8021X_EAP_IDENTITY_TAIL
