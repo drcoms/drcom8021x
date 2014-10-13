@@ -1,3 +1,4 @@
+#coding=utf-8
 """ EAP authentication handler
 
 This module sents EAPOL begin/logoff packet
