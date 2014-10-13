@@ -3,7 +3,7 @@ from struct import *
 ## Constants
 # Reference: http://tools.ietf.org/html/rfc3748
 ETHERTYPE_PAE = 0x888e
-PAE_GROUP_ADDR = "\x01\x80\xc2\x00\x00\x03"
+PAE_GROUP_ADDR = "\x01\x80\xc2\x00\x00\x03" # same for all
 BROADCAST_ADDR = "\xff\xff\xff\xff\xff\xff"
 
 EAPOL_VERSION = 1
@@ -31,7 +31,9 @@ EAP_FAILURE = 4
 # 255     Experimental use
 EAP_TYPE_ID = 1                # identity
 EAP_TYPE_MD5 = 4               # md5 Challenge
-EAP_TYPE_H3C = 7               # H3C eap packet(used for SYSU east campus)
+
+# DRCOM
+DRCOM_8021X_EAP_MD5_TAIL = '\x44\x61\x17'
 
 ### Packet builders
 def get_EAPOL(type, payload=""):
