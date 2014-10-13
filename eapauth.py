@@ -13,6 +13,7 @@ import os, sys, pwd
 from subprocess import call
 import hashlib
 from struct import pack, unpack
+from binascii import hexlify
 
 from colorama import Fore, Style, init
 # init() # required in Windows
@@ -25,10 +26,10 @@ def display_prompt(color, string):
 
 def display_packet(packet, header=""):
     print '%s Packet info: ' % header
-    print '\tFrom: ' + repr(packet[0:6])
-    print '\tTo: ' + repr(packet[6:12])
-    print '\tType: ' + repr(packet[12:14])
-    print '\tContent: ' + repr(packet[14:])
+    print '\tFrom: ' + hexlify(packet[0:6])
+    print '\tTo: ' + hexlify(packet[6:12])
+    print '\tType: ' + hexlify(packet[12:14])
+    print '\tContent: ' + hexlify(packet[14:])
 
 class EAPAuth:
 
