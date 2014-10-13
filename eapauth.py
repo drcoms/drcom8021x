@@ -10,7 +10,8 @@ __all__ = ["EAPAuth"]
 import socket
 import os, sys, pwd
 from subprocess import call
-from hashlib import md5
+import hashlib
+from struct import pack, unpack
 
 from colorama import Fore, Style, init
 # init() # required in Windows
@@ -72,19 +73,13 @@ class EAPAuth:
 
 
     def send_response_md5(self, packet_id, md5data):
-        md5 = self.login_info['password'][0:16]
-        if len(md5) < 16:
-            md5 = md5 + '\x00' * (16 - len(md5))
-        """
-        chap = []
-        for i in xrange(0, 16):
-            chap.append(chr(ord(md5[i]) ^ ord(md5data[i])))
-        """
-        # 由于没有样本，暂时取https://github.com/coverxit/EasyDrcom/里的结构
-        md5 = md5(md5).digest()
+        password = self.login_info['password']
+        username = self.login_info['username']
+        packet_id = pack('B', packet_id)
+        eap_md5 = hashlib.md5(packet_id + password + md5data).digest()
         md5_length = '\x10' # md5_value_size = 16
         
-        resp = md5_length + md5
+        resp = md5_length + eap_md5 + username + '\x00' + DRCOM_8021X_EAP_MD5_TAIL
         # resp = chr(len(chap)) + ''.join(chap) + self.login_info['username']
         eap_packet = self.ethernet_header + \
             get_EAPOL(EAPOL_EAPPACKET, get_EAP(
