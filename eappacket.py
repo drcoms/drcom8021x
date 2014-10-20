@@ -1,4 +1,7 @@
+#coding=utf-8
 from struct import *
+import zlib import crc32
+
 
 ## Constants
 # Reference: http://tools.ietf.org/html/rfc3748
@@ -32,11 +35,11 @@ EAP_FAILURE = 4
 EAP_TYPE_ID = 1                # identity
 EAP_TYPE_MD5 = 4               # md5 Challenge
 
-# DRCOM
-DRCOM_8021X_EAP_MD5_TAIL = '\x44\x61\x17'
-DRCOM_8021X_EAP_IDENTITY_TAIL = '\x44\x61'
-
 ### Packet builders
+
+def get_crc32(data):
+    return pack("!i", crc32(data))
+
 def get_EAPOL(type, payload=""):
     return pack("!BBH", EAPOL_VERSION, type, len(payload))+payload
 
