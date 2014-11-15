@@ -1,7 +1,6 @@
 #coding=utf-8
 from struct import *
-import zlib
-import crc32
+from zlib import crc32
 
 
 ## Constants
