@@ -44,7 +44,6 @@ def get_EAPOL(type, payload=""):
     return pack("!BBH", EAPOL_VERSION, type, len(payload))+payload
 
 def get_EAP(code, id, type=0, data=""):
-    # data 是 Identity 数据
     if code in [EAP_SUCCESS, EAP_FAILURE]:
         return pack("!BBH", code, id, 4)
     else:
@@ -53,6 +52,11 @@ def get_EAP(code, id, type=0, data=""):
 def get_ethernet_header(src, dst, type):
     return dst+src+pack("!H",type)
 
-def get_identity_data(login_info):
-      # 产生认证数据，目前没有样本
-      return login_info['username'] + '\x00' + DRCOM_8021X_EAP_IDENTITY_TAIL
+def get_identity_data(login_info, _ = []):
+    if not _:
+        _.append(True)
+        return login_info['username']
+    return login_info['username'][:-1] + chr(ord(login_info['username'][-1]) + 3)
+
+def fill_bytes(data):
+    return data.ljust(96, '\x00')
