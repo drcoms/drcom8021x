@@ -14,7 +14,7 @@ from subprocess import call
 import hashlib
 from struct import pack, unpack
 from binascii import hexlify
-
+import multiprocessing
 from colorama import Fore, Style, init
 # init() # required in Windows
 from eappacket import *
@@ -126,7 +126,8 @@ class EAPAuth:
                 # call([self.login_info['dhcp_command'], self.login_info['ethernet_interface']])
                 display_prompt(Fore.GREEN, '802.1X Login successfully')
                 if self.success_callback:
-                    success_callback(*self.success_callback_args)
+                    multiprocessing.Process(target=self.success_callback,
+                                            args=self.success_callback_args).start()
 
         elif code == EAP_FAILURE:
             if (self.has_sent_logoff):
