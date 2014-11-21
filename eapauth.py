@@ -9,7 +9,7 @@ and parses received EAP packet
 __all__ = ["EAPAuth"]
 
 import socket
-import os, sys, pwd
+import os, sys
 from subprocess import call
 import hashlib
 from struct import pack, unpack
@@ -33,22 +33,27 @@ def display_packet(packet, header=""):
 
 class EAPAuth:
 
-    def __init__(self, login_info):
+    def __init__(self, login_info, success_handler = None, success_callback_args=(,)):
         # bind the h3c client to the EAP protocal
         self.client = socket.socket(
             socket.AF_PACKET, socket.SOCK_RAW, socket.htons(ETHERTYPE_PAE))
         self.client.bind((login_info['ethernet_interface'], ETHERTYPE_PAE))
+        
 
         # get local ethernet card address
         self.mac_addr = self.client.getsockname()[4]
+        
+        self.mac_addr = '\x12\x34\x56\x78\xab\xaa'
         self.ethernet_header = get_ethernet_header(
             self.mac_addr, PAE_GROUP_ADDR, ETHERTYPE_PAE)
         self.has_sent_logoff = False
         self.login_info = login_info
+        self.success_callback = success_handler
+        self.success_callback_args = success_callback_args
 
     def send_start(self):
         # sent eapol start packet
-        eap_start_packet = self.ethernet_header + get_EAPOL(EAPOL_START)
+        eap_start_packet = fill_bytes(self.ethernet_header + get_EAPOL(EAPOL_START))
         display_packet(eap_start_packet, "Start")
         self.client.send(eap_start_packet)
 
@@ -77,15 +82,14 @@ class EAPAuth:
     def send_response_md5(self, packet_id, md5data):
         password = self.login_info['password']
         username = self.login_info['username']
-        packet_id = pack('B', packet_id)
-        eap_md5 = hashlib.md5(packet_id + password + md5data).digest()
+        eap_md5 = hashlib.md5(chr(packet_id) + password + md5data).digest()
         md5_length = '\x10' # md5_value_size = 16
         
-        resp = md5_length + eap_md5 + username + '\x00' + DRCOM_8021X_EAP_MD5_TAIL
+        resp = md5_length + eap_md5 + username
         # resp = chr(len(chap)) + ''.join(chap) + self.login_info['username']
-        eap_packet = self.ethernet_header + \
-            get_EAPOL(EAPOL_EAPPACKET, get_EAP(
-                EAP_RESPONSE, packet_id, EAP_TYPE_MD5, resp))
+        eap_packet = fill_bytes(self.ethernet_header + \
+                                get_EAPOL(EAPOL_EAPPACKET, get_EAP(
+                                EAP_RESPONSE, packet_id, EAP_TYPE_MD5, resp)))
         
         display_packet(eap_packet, "Response_MD5")  
         
@@ -94,18 +98,6 @@ class EAPAuth:
         except socket.error, msg:
             print "Connection error!"
             exit(-1)
-
-    # 这是何物？
-    """
-    def send_response_h3c(self, packet_id):
-        resp = chr(len(self.login_info['password'])) + self.login_info['password'] + self.login_info['username']
-        eap_packet = self.ethernet_header + get_EAPOL(EAPOL_EAPPACKET, get_EAP(EAP_RESPONSE, packet_id, EAP_TYPE_H3C, resp))
-        try:
-            self.client.send(eap_packet)
-        except socket.error, msg:
-            print "Connection error!"
-            exit(-1)
-    """
 
     def display_login_message(self, msg):
         """
@@ -132,7 +124,9 @@ class EAPAuth:
                 # 脚本只做测试用， 暂时不获取ip
                 # display_prompt(Fore.YELLOW, 'Obtaining IP Address:')
                 # call([self.login_info['dhcp_command'], self.login_info['ethernet_interface']])
-                display_prompt(Fore.RED, 'Test result: 802.1X Login success')
+                display_prompt(Fore.GREEN, '802.1X Login successfully')
+                if self.success_callback:
+                    success_callback(*self.success_callback_args)
 
         elif code == EAP_FAILURE:
             if (self.has_sent_logoff):
