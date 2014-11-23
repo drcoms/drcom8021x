@@ -10,5 +10,5 @@ user_info = {'username': "",
              }
 
 # 802.1x成功以后就进入正常drcom认证
-auth = eapauth.EAPAuth(user_info, success_callback=drcom.main)
+auth = eapauth.EAPAuth(user_info, success_handler=drcom.main)
 auth.serve_forever()
