@@ -42,8 +42,6 @@ class EAPAuth:
 
         # get local ethernet card address
         self.mac_addr = self.client.getsockname()[4]
-        
-        self.mac_addr = '\x12\x34\x56\x78\xab\xaa'
         self.ethernet_header = get_ethernet_header(
             self.mac_addr, PAE_GROUP_ADDR, ETHERTYPE_PAE)
         self.has_sent_logoff = False
@@ -154,11 +152,6 @@ class EAPAuth:
                 display_prompt(Fore.GREEN,
                                'Sending EAP response with identity = [%s]'
                                % self.login_info['username'])
-
-            elif reqtype == EAP_TYPE_H3C:
-                display_prompt(Fore.YELLOW, 'Got EAP Request for Allocation')
-                self.send_response_h3c(id)
-                display_prompt(Fore.GREEN, 'Sending EAP response with password')
 
             elif reqtype == EAP_TYPE_MD5:
                 data_len = unpack("!B", reqdata[0:1])[0]
