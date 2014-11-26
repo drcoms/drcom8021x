@@ -1,16 +1,13 @@
 DrCOM 802.1X
 =====
 
-H3C 的 802.1X 认证已有现成的代码
+**注意本脚本不支持 Linux 和 MacOS**
 
-我没有看白皮书，估计情况不同在需要认证的步数，和认证的内容上有别，其他估计一样。<br>
-应该是在 *Identity* 区附加了 *DrCOM* 的认证数据
+这个脚本需要修改的地方
 
-本项目 fork 自 http://github.com/humiaozuzu/YaH3C
+1. `main.py` 中的 `username`, `password`, `ethernet_interface`, 其中 `username`, `password` 为上网账号密码， `ethernet_interface` 为 WAN 口设备接口.
+2. 确认学校是否仅需要 `802.1X` 认证， 这是可以试出来的， 可尝试将 `main.py` 中 `need_drcom` 改成 `True` 或 `False` 实验，该变量为 `True` 时，会附加 `DrCOM` 认证，而不仅仅是作 `802.1X` 认证
+3. 如果需要 `DrCOM` 认证，请您访问 <https://github.com/drcoms/generic/blob/master/latest-wired.py> 获取最新的认证脚本，并将该脚本文件名改为 `drcom.py` 并且按说明正确配置相关文件
+4. 注意，该项目的 `drcom.py` 将不起到 `DrCOM` 认证作用，请按 3 中方法实施。
 
-目前只作为测试使用, 根据原作者的声明
-
-    YaH3c的代码使用MIT License发布，此外，禁止使用YaH3C以及YaH3C的修改程序用于商业目的（比如交叉编译到路由进行销售等行为）
-
-如果最后 **使用该代码** 作为 *DrCOM* 登陆脚本的 802.1X 模块， 则
-集成了 802.1X 协议的客户端将不允许进行商业目的(比如路由器厂家集成)。
+认证请执行 `main.py`
