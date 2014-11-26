@@ -167,7 +167,7 @@ class EAPAuth:
                 self.EAP_handler(eap_packet[14:])
 
         except KeyboardInterrupt:
-            print Fore.RED + Style.BRIGHT + 'Interrupted by user' + Style.RESET_ALL
+            print 'Interrupted by user'
             self.send_logoff()
 
         except socket.error, msg:
