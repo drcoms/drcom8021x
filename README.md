@@ -1,7 +1,7 @@
 DrCOM 802.1X
 =====
 
-**注意本脚本不支持 Linux 和 MacOS**
+**注意本脚本不支持 Windows 和 MacOS**
 
 这个脚本需要修改的地方
 
