@@ -1,5 +1,6 @@
 DrCOM 802.1X
 =====
+*如果你愿意捐助作者这个穷屌, 支付宝: latyas@live.com*
 
 **注意本脚本不支持 Windows 和 MacOS**
 
