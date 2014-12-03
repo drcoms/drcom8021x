@@ -13,7 +13,7 @@ from eappacket import *
 PACKET_OUTPUT = False
 
 def display_prompt(string):
-    print '[*]', prompt
+    print '[*]', string
 
 def display_packet(packet, header=""):
     if PACKET_OUTPUT:
