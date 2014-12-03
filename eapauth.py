@@ -25,7 +25,7 @@ def display_packet(packet, header=""):
 
 class EAPAuth:
 
-    def __init__(self, login_info, success_handler = None, success_callback_args=(,)):
+    def __init__(self, login_info, success_handler = None, success_callback_args=()):
         # bind the h3c client to the EAP protocal
         self.client = socket.socket(
             socket.AF_PACKET, socket.SOCK_RAW, socket.htons(ETHERTYPE_PAE))
