@@ -8,6 +8,7 @@ user_info = {'username': "",
              'password': "",
              'ethernet_interface': "eth0",
              'daemon': False,
+             'dhcp_command': ''
              }
 
 need_drcom = True
