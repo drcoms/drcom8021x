@@ -9,6 +9,7 @@ from struct import pack, unpack
 from binascii import hexlify
 import multiprocessing
 from eappacket import *
+import time
 
 PACKET_OUTPUT = False
 
@@ -112,6 +113,7 @@ class EAPAuth:
 
             if self.login_info['dhcp_command']:
                 display_prompt('802.1X Login successfully')
+                time.sleep(10)
                 if self.success_callback:
                     multiprocessing.Process(target=self.success_callback,
                                             args=self.success_callback_args).start()
